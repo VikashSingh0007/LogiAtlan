@@ -5,12 +5,12 @@ const Booking = require('../models/Booking');
 const createBooking = async (req, res) => {
     try {
         const { pickupLocation, dropOffLocation, vehicleType } = req.body; // Use dropOffLocation
-
+        console.log(req.body)
         // Log incoming request body
         // console.log('Incoming booking request:', req.body);
         
         // Ensure the user is authenticated
-        if (!req.user || !req.user.id) {
+        if (!req.user ) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 

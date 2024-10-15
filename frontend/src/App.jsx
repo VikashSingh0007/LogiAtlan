@@ -24,7 +24,7 @@ const App = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<UserProfile />} />
-          <Route path="/create-booking" element={<CreateBookingPage />} />
+          <Route path="/create-booking/:vehicleType" element={<CreateBookingPage />} /> 
           <Route path="/booking-history" element={<BookingHistoryPage />} />
           <Route path="/cancel-booking" element={<CancelBookingPage />} />
           <Route path="/driver-register" element={<RegisterDriverPage />} />
