@@ -7,7 +7,7 @@ const createBooking = async (req, res) => {
         const { pickupLocation, dropOffLocation, vehicleType } = req.body; // Use dropOffLocation
 
         // Log incoming request body
-        console.log('Incoming booking request:', req.body);
+        // console.log('Incoming booking request:', req.body);
         
         // Ensure the user is authenticated
         if (!req.user || !req.user.id) {
@@ -42,9 +42,9 @@ const createBooking = async (req, res) => {
 // View user's booking history
 const viewBookingHistory = async (req, res) => {
     try {
-        console.log('User ID:', req.user.id); // Log user ID
+        // console.log('User ID:', req.user.id); // Log user ID
         const bookings = await Booking.find({ userId: req.user.id }).populate('driverId'); // Use 'driverId' for population
-        console.log('Bookings:', bookings); // Log retrieved bookings
+        // console.log('Bookings:', bookings); // Log retrieved bookings
 
         if (bookings.length === 0) {
             return res.status(200).json({ message: 'No bookings found for this user.' });

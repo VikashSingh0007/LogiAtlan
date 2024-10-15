@@ -1,52 +1,26 @@
-import React, { useState, useContext } from 'react';
-import AuthContext from '../context/AuthContext';
+import React, { useState } from 'react';
+import RegisterUserPage from './RegisterUserPage';
+import RegisterDriverPage from './RegisterDriverPage';
 
 const RegisterPage = () => {
-  const { registerUser } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await registerUser(name, email, password);
-      setError('');  // Clear error on success
-    } catch (err) {
-      setError('Registration failed. Please try again.');
-      console.error('Registration error:', err);
-    }
-  };
+  const [role, setRole] = useState('user');  // Set default role to "user"
 
   return (
     <div>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Register</button>
+      <form>
+        <label htmlFor="role">Register as:</label>
+        <select 
+          id="role" 
+          onChange={(e) => setRole(e.target.value)} 
+          value={role}
+        >
+          <option value="user">User</option>
+          <option value="driver">Driver</option>
+        </select>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}  {/* Display error message */}
+
+      {role === 'user' ? <RegisterUserPage /> : <RegisterDriverPage />}
     </div>
   );
 };

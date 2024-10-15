@@ -7,7 +7,7 @@ const UserProfile = () => {
   if (!user) {
     return <p>Please log in to view your profile.</p>;
   }
-
+console.log(user);
   return (
     <div>
       <h2>User Profile</h2>

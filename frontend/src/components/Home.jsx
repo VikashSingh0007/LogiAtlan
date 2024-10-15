@@ -1,5 +1,5 @@
 import React from "react";
-import { FiTruck } from "react-icons/fi";
+// import { FiTruck } from "react-icons/fi";
 const HomePage = () => {
   return (
     <main>
@@ -30,7 +30,7 @@ const HomePage = () => {
 
                 <button className="flex-btn">
                   <div className="btn-icon">
-                    <FiTruck />
+                    {/* <FiTruck /> */}
                   </div>
 
                   <span className="span">How it works</span>
