@@ -1,8 +1,10 @@
-// src/components/Navbar.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 
 const Navbar = () => {
+  const { user, logout } = useContext(AuthContext);
+
   return (
     <nav className="bg-gray-800 p-4">
       <div className="container mx-auto flex justify-between">
@@ -11,15 +13,28 @@ const Navbar = () => {
           <li>
             <Link to="/" className="text-white">Home</Link>
           </li>
-          <li>
-            <Link to="/signup" className="text-white">Signup</Link>
-          </li>
-          <li>
-            <Link to="/login" className="text-white">Login</Link>
-          </li>
-          <li>
-            <Link to="/profile" className="text-white">Profile</Link>
-          </li>
+          {user ? (
+            <>
+              <li>
+                <Link to="/profile" className="text-white">Profile</Link>
+              </li>
+              <li>
+                <Link to="/booking-history" className="text-white">Booking History</Link>
+              </li>
+              <li>
+                <button onClick={logout} className="text-white">Logout</button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link to="/register" className="text-white">Register</Link>
+              </li>
+              <li>
+                <Link to="/login" className="text-white">Login</Link>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </nav>

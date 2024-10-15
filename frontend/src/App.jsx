@@ -1,23 +1,38 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Home from './components/Home';
-import UserSignup from './components/UserSignup';
-import UserLogin from './components/UserLogin';
+import { AuthProvider } from './context/AuthContext';
+import RegisterPage from './components/RegisterPage';
+import LoginPage from './components/LoginPage';
+import CreateBookingPage from './components/CreateBookingPage';
+import BookingHistoryPage from './components/BookingHistoryPage';
+import CancelBookingPage from './components/CancelBookingPage';
+import RegisterDriverPage from './components/RegisterDriverPage';
+import LoginDriverPage from './components/LoginDriverPage';
+import DriverDashboard from './components/DriverDashboard';
+import HomePage from './components/Home';
+import Navbar from './components/Navbar'; // Import Navbar
 import UserProfile from './components/UserProfile';
 
 const App = () => {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<UserSignup />} />
-        <Route path="/login" element={<UserLogin />} />
-        <Route path="/profile" element={<UserProfile />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        {/* Navbar will show on all pages */}
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/create-booking" element={<CreateBookingPage />} />
+          <Route path="/booking-history" element={<BookingHistoryPage />} />
+          <Route path="/cancel-booking" element={<CancelBookingPage />} />
+          <Route path="/driver-register" element={<RegisterDriverPage />} />
+          <Route path="/driver-login" element={<LoginDriverPage />} />
+          <Route path="/driver-dashboard" element={<DriverDashboard />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 
