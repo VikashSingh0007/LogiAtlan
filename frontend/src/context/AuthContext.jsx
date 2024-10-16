@@ -37,13 +37,13 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (res.ok) {
-        const { user, token } = await res.json();  // Assume the response sends back user object and token
-        const userData = { name: user.name, email: user.email, token };  // Prepare user data
+        const { user, token } = await res.json();
+        const userData = { name: user.name, email: user.email, token, isDriver: false }; // Set isDriver to false
         setUser(userData);
         setName(user.name);
         setEmail(user.email);
-        localStorage.setItem('user', JSON.stringify(userData));  // Store user data in localStorage
-        localStorage.setItem('authToken', token);  // Store the token separately in localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('authToken', token);
       } else {
         const errorText = await res.text();
         console.error('Registration failed:', errorText);
@@ -63,15 +63,16 @@ export const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       if (res.ok) {
-        const { user, token } = await res.json();  // Ensure token is retrieved here
-        const userData = { name: user.name, email: user.email, token };  // Prepare user data
+        const { user, token } = await res.json();
+        const userData = { name: user.name, email: user.email, token, isDriver: false }; // Set isDriver explicitly to false for users
         setUser(userData);
         setName(user.name);
         setEmail(user.email);
-        localStorage.setItem('authToken', token);  // Store token in localStorage
-        localStorage.setItem('user', JSON.stringify(userData));  // Store user data in localStorage
+        setIsDriver(false); // Set to false for regular users
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(userData));
       } else {
         const errorText = await res.text();
         console.error('Login failed:', errorText);
@@ -80,7 +81,6 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during login:', err);
     }
   };
-  
 
   // Register a new driver
   const registerDriver = async (name, email, password, phone, vehicleType) => {
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
         setEmail(user.email);
         setIsDriver(true);
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('authToken', token);  // Store the token separately in localStorage
+        localStorage.setItem('authToken', token);
       } else {
         console.error('Driver registration failed:', await res.text());
       }
@@ -112,12 +112,12 @@ export const AuthProvider = ({ children }) => {
 
   // Logout user
   const logout = () => {
-    setUser(null);  // Remove user from state
+    setUser(null);
     setName(null);
     setEmail(null);
     setIsDriver(false);
-    localStorage.removeItem('user');  // Remove user from localStorage
-    localStorage.removeItem('authToken');  // Remove token from localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
   };
 
   return (

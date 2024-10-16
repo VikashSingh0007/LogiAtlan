@@ -42,9 +42,10 @@ const createBooking = async (req, res) => {
 // View user's booking history
 const viewBookingHistory = async (req, res) => {
     try {
-        // console.log('User ID:', req.user.id); // Log user ID
-        const bookings = await Booking.find({ userId: req.user.id }).populate('driverId'); // Use 'driverId' for population
-        // console.log('Bookings:', bookings); // Log retrieved bookings
+        // Fetch bookings for the logged-in user and populate both user and driver details
+        const bookings = await Booking.find({ userId: req.user.id })
+            .populate('userId', 'name email phone') // Populating user details
+            .populate('driverId', 'name email phone'); // Populating driver details
 
         if (bookings.length === 0) {
             return res.status(200).json({ message: 'No bookings found for this user.' });
@@ -56,6 +57,7 @@ const viewBookingHistory = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve booking history' });
     }
 };
+
 
 
 // Cancel a booking
