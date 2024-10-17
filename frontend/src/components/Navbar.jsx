@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user,isDriver, logout } = useContext(AuthContext);
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -26,7 +26,27 @@ const Navbar = () => {
               </li>
             </>
           ) : (
-            <>
+
+
+            (
+            isDriver ? (
+              // Navbar for Drivers
+             
+              <>
+                <li>
+                  <Link to="/driver-dashboard" className="text-white">Driver Dashboard</Link>
+                </li>
+                <li>
+                  <Link to="/manage-bookings" className="text-white">Manage Bookings</Link>
+                </li>
+                <li>
+                  <button onClick={logout} className="text-white">Logout</button>
+                </li>
+              </>
+            ) : (
+              // Navbar for Regular Users
+              <>
+  
               <li>
                 <Link to="/register" className="text-white">Register</Link>
               </li>
@@ -34,6 +54,10 @@ const Navbar = () => {
                 <Link to="/login" className="text-white">Login</Link>
               </li>
             </>
+            )
+          )
+
+           
           )}
         </ul>
       </div>

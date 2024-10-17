@@ -62,7 +62,10 @@ const login = async (req, res) => {
         // Create token
         const token = jwt.sign({ id: driver._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ message: 'Driver logged in successfully', token });
+        res.status(200).json({
+            user: { name: driver.name, email: driver.email },
+            token
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }

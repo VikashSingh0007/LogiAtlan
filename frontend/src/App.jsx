@@ -12,7 +12,9 @@ import DriverDashboard from './components/DriverDashboard';
 import HomePage from './components/Home';
 import Navbar from './components/Navbar'; // Import Navbar
 import UserProfile from './components/UserProfile';
-
+import LiveTracking from './components/LiveTracking';
+import AdminDashboard from './components/AdminDashboard';
+import RegisterVehicle from './components/RegisterVehicle';
 const App = () => {
   return (
     <AuthProvider>
@@ -30,6 +32,9 @@ const App = () => {
           <Route path="/driver-register" element={<RegisterDriverPage />} />
           <Route path="/driver-login" element={<LoginDriverPage />} />
           <Route path="/driver-dashboard" element={<DriverDashboard />} />
+          <Route path="/live-tracking" element={<LiveTracking />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/registervehicle" element={<RegisterVehicle />} />
         </Routes>
       </Router>
     </AuthProvider>

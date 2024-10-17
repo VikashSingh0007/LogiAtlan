@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const Login = () => {
-  const { loginUser, loginDriver } = useContext(AuthContext);
+  const { loginUser, loginDriver, loginAdmin } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
@@ -11,12 +11,20 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (role === 'user') {
-      await loginUser(email, password);
-    } else {
-      await loginDriver(email, password);
+    try {
+      if (role === 'user') {
+        await loginUser(email, password);
+        navigate('/'); // Redirect to user homepage
+      } else if (role === 'driver') {
+        await loginDriver(email, password);
+        navigate('/driver-dashboard'); // Redirect to driver dashboard
+      } else if (role === 'admin') { // Handle admin login
+        await loginAdmin(email, password);
+        navigate('/admin-dashboard'); // Redirect to admin dashboard
+      }
+    } catch (error) {
+      console.error('Login error:', error);
     }
-    navigate('/');
   };
 
   return (
@@ -47,6 +55,7 @@ const Login = () => {
               >
                 <option value="user">User</option>
                 <option value="driver">Driver</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
           </div>

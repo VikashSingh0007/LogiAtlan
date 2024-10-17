@@ -4,8 +4,8 @@ const Booking = require('../models/Booking');
 
 const createBooking = async (req, res) => {
     try {
-        const { pickupLocation, dropOffLocation, vehicleType } = req.body; // Use dropOffLocation
-        console.log(req.body)
+        const { pickupLocation, dropOffLocation, vehicleType,estimatedCost } = req.body; // Use dropOffLocation
+        // console.log(req.body)
         // Log incoming request body
         // console.log('Incoming booking request:', req.body);
         
@@ -15,8 +15,6 @@ const createBooking = async (req, res) => {
         }
 
         // Calculate estimated cost based on vehicle type and distance
-        const estimatedCost = await calculateEstimatedCost(pickupLocation, dropOffLocation, vehicleType);
-        
         if (estimatedCost === null || estimatedCost === undefined) {
             return res.status(400).json({ error: 'Failed to calculate estimated cost' });
         }
@@ -87,8 +85,32 @@ const calculateEstimatedCost = async (pickupLocation, dropoffLocation, vehicleTy
     return Math.floor(Math.random() * 100) + 1; // Random cost between 1 and 100 for demonstration
 };
 
+
+const estimateBookingCost = async (req, res) => {
+    try {
+        const { pickupLocation, dropOffLocation, vehicleType } = req.body;
+
+        const estimatedCost = await calculateEstimatedCost(pickupLocation, dropOffLocation, vehicleType);
+
+        if (estimatedCost === null || estimatedCost === undefined) {
+            return res.status(400).json({ error: 'Failed to calculate estimated cost' });
+        }
+
+        res.status(201).json({
+            message: 'Booking cost estimated successfully',
+            estimatedCost: estimatedCost // Send estimated cost in the response
+        });
+    } catch (error) {
+        console.error('Error estimating booking cost:', error); // Log the error details
+        res.status(500).json({ error: 'Failed to estimate booking cost', details: error.message });
+    }
+};
+
+
+
 module.exports = {
     createBooking,
     viewBookingHistory,
-    cancelBooking
+    cancelBooking,
+    estimateBookingCost
 };

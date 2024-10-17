@@ -7,6 +7,9 @@ const HomePage = () => {
   const { user, isDriver } = useContext(AuthContext);
   const navigate = useNavigate(); // Initialize useNavigate
 
+
+  
+
   // Function to handle vehicle type click
   const handleVehicleClick = (vehicleType) => {
     navigate(`/create-booking/${vehicleType}`); // Navigate to create-booking page with vehicleType

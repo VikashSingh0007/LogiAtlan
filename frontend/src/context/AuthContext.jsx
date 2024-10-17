@@ -7,7 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
   const [isDriver, setIsDriver] = useState(false);
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   // Check if the user is already logged in when the app starts
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
@@ -110,6 +111,65 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+  const loginDriver = async (email, password) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/driver/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (res.ok) {
+       
+        const { user, token } = await res.json();
+        console.log(token)
+        const userData = { name: user.name, email: user.email, token, isDriver: true }; // Set isDriver as true
+        setUser(userData);
+        setName(user.name);
+        setEmail(user.email);
+        setIsDriver(true);
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('authToken', token);
+        
+      } else {
+        console.error('Driver login failed:', await res.text());
+      }
+    } catch (err) {
+      console.error('Error during driver login:', err);
+    }
+  };
+  const loginAdmin = async (email, password) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.ok) {
+        const { user, token } = await res.json();
+        const userData = { name: user.name, email: user.email, token, isDriver: false, isAdmin: true };
+        setUser(userData);
+        setName(user.name);
+        setEmail(user.email);
+        setIsDriver(false);
+        setIsAdmin(true);
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('authToken', token);
+      } else {
+        console.error('Admin login failed:', await res.text());
+      }
+    } catch (err) {
+      console.error('Error during admin login:', err);
+    }
+  };
+
+
   // Logout user
   const logout = () => {
     setUser(null);
@@ -121,7 +181,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, name, email, isDriver, registerUser, loginUser, logout, registerDriver }}>
+    <AuthContext.Provider value={{user, name, email, isDriver, isAdmin, registerUser, loginUser, logout, registerDriver, loginDriver, loginAdmin}}>
       {children}
     </AuthContext.Provider>
   );

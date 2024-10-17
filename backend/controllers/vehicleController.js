@@ -1,11 +1,17 @@
 // controllers/vehicleController.js
 const Vehicle = require('../models/Vehicle');
-
+const jwt = require('jsonwebtoken');
 // Create a new vehicle
 exports.createVehicle = async (req, res) => {
     try {
-        const { driverId, licensePlate, type, capacity } = req.body;
-        const vehicle = new Vehicle({ driverId, licensePlate, type, capacity });
+        
+        const { licensePlate, type, capacity, status } = req.body;
+        
+        token = req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+   
+            const driverId= decoded.id
+        const vehicle = new Vehicle({ driverId, licensePlate, type, capacity, status });
         await vehicle.save();
         res.status(201).json({ message: 'Vehicle created successfully', vehicle });
     } catch (error) {
