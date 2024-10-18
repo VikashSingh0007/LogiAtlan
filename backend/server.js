@@ -6,6 +6,7 @@ const driverRoutes = require('./routes/driverRoutes');
 const bookingRoutes = require('./routes/bookingRoutes'); // Import booking routes
 const AdminRoutes=require('./routes/AdminRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes')
+const locationRoutes = require('./routes/locationRoutes');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use('/api/driver', driverRoutes); // Driver-related routes
 app.use('/api/bookings', bookingRoutes); // Booking routes
 app.use('/api/admin',AdminRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/location', locationRoutes);
 const PORT = process.env.PORT || 5000;
 
 const http = require('http');

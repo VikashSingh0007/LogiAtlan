@@ -1,12 +1,15 @@
 import { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
+
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
   const [isDriver, setIsDriver] = useState(false);
+  const [isUser, setIsUser] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
   // Check if the user is already logged in when the app starts
@@ -19,6 +22,7 @@ export const AuthProvider = ({ children }) => {
         setName(parsedUser.name);
         setEmail(parsedUser.email);
         setIsDriver(parsedUser.isDriver || false); // Set if the logged-in entity is a driver
+        
       } catch (e) {
         console.error("Failed to parse user JSON:", e);
         localStorage.removeItem('user');
@@ -43,6 +47,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setName(user.name);
         setEmail(user.email);
+        setIsUser(true);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('authToken', token);
       } else {
@@ -71,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setName(user.name);
         setEmail(user.email);
+        setIsUser(true);
         setIsDriver(false); // Set to false for regular users
         localStorage.setItem('authToken', token);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -100,6 +106,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setName(user.name);
         setEmail(user.email);
+        setIsUser(false);
         setIsDriver(true);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('authToken', token);
@@ -131,6 +138,7 @@ export const AuthProvider = ({ children }) => {
         setName(user.name);
         setEmail(user.email);
         setIsDriver(true);
+        setIsUser(false);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('authToken', token);
         
@@ -158,6 +166,7 @@ export const AuthProvider = ({ children }) => {
         setName(user.name);
         setEmail(user.email);
         setIsDriver(false);
+        setIsUser(false);
         setIsAdmin(true);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('authToken', token);
@@ -173,15 +182,19 @@ export const AuthProvider = ({ children }) => {
   // Logout user
   const logout = () => {
     setUser(null);
+    setIsUser(false);
     setName(null);
     setEmail(null);
     setIsDriver(false);
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
+    window.location.reload();
+    // const navigate = useNavigate();
+    //  navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{user, name, email, isDriver, isAdmin, registerUser, loginUser, logout, registerDriver, loginDriver, loginAdmin}}>
+    <AuthContext.Provider value={{user, name, email, isDriver, isAdmin, registerUser, loginUser, logout, registerDriver, loginDriver, loginAdmin,isUser}}>
       {children}
     </AuthContext.Provider>
   );

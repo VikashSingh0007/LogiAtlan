@@ -8,13 +8,15 @@ import BookingHistoryPage from './components/BookingHistoryPage';
 import CancelBookingPage from './components/CancelBookingPage';
 import RegisterDriverPage from './components/RegisterDriverPage';
 import LoginDriverPage from './components/LoginDriverPage';
-import DriverDashboard from './components/DriverDashboard';
+
 import HomePage from './components/Home';
 import Navbar from './components/Navbar'; // Import Navbar
 import UserProfile from './components/UserProfile';
 import LiveTracking from './components/LiveTracking';
 import AdminDashboard from './components/AdminDashboard';
 import RegisterVehicle from './components/RegisterVehicle';
+import BookingDriverSidePage from './components/BookingDriverSidePage';
+import BookingHistoryDriverPage from './components/BookingHistoryDriverPage';
 const App = () => {
   return (
     <AuthProvider>
@@ -31,10 +33,11 @@ const App = () => {
           <Route path="/cancel-booking" element={<CancelBookingPage />} />
           <Route path="/driver-register" element={<RegisterDriverPage />} />
           <Route path="/driver-login" element={<LoginDriverPage />} />
-          <Route path="/driver-dashboard" element={<DriverDashboard />} />
-          <Route path="/live-tracking" element={<LiveTracking />} />
+      
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/registervehicle" element={<RegisterVehicle />} />
+          <Route path="/active-requests" element={<BookingDriverSidePage />} />
+          <Route path="/accepted-bookings" element={<BookingHistoryDriverPage />} />
         </Routes>
       </Router>
     </AuthProvider>

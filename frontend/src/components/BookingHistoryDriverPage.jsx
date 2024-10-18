@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 
-const BookingHistoryPage = () => {
+const BookingHistoryDriverPage = () => {
   const { user, isDriver } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]); // Ensure initial state is an array
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -10,7 +10,7 @@ const BookingHistoryPage = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/bookings/history', {
+        const res = await axios.get('http://localhost:5000/api/bookings/driver-history', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         console.log('API Response:', res.data); // Log the response to ensure it's an array
@@ -121,4 +121,4 @@ const BookingHistoryPage = () => {
   );
 };
 
-export default BookingHistoryPage;
+export default BookingHistoryDriverPage;

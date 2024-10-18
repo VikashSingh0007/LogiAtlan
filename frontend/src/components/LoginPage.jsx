@@ -17,7 +17,7 @@ const Login = () => {
         navigate('/'); // Redirect to user homepage
       } else if (role === 'driver') {
         await loginDriver(email, password);
-        navigate('/driver-dashboard'); // Redirect to driver dashboard
+        navigate('/'); // Redirect to driver dashboard
       } else if (role === 'admin') { // Handle admin login
         await loginAdmin(email, password);
         navigate('/admin-dashboard'); // Redirect to admin dashboard
@@ -55,7 +55,7 @@ const Login = () => {
               >
                 <option value="user">User</option>
                 <option value="driver">Driver</option>
-                <option value="admin">Admin</option>
+                {/* <option value="admin">Admin</option> */}
               </select>
             </div>
           </div>

@@ -3,17 +3,17 @@ import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 
 const BookingHistoryPage = () => {
-  const { user, isDriver } = useContext(AuthContext);
-  const [bookings, setBookings] = useState([]); // Ensure initial state is an array
+  const { user } = useContext(AuthContext);
+  const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/bookings/history', {
+        const res = await axios.get('http://localhost:5000/api/bookings/active-requests', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        console.log('API Response:', res.data); // Log the response to ensure it's an array
+        console.log('API Response:', res.data);
         if (Array.isArray(res.data)) {
           setBookings(res.data);
         } else {
@@ -30,11 +30,28 @@ const BookingHistoryPage = () => {
     setSelectedBooking(booking);
   };
 
+  const handleAccept = async (bookingId) => {
+    try {
+      const res = await axios.post(`http://localhost:5000/api/bookings/accept/${bookingId}`, {}, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+
+      console.log('Booking accepted:', res.data);
+      setBookings((prev) => 
+        prev.map((booking) => 
+          booking._id === bookingId ? { ...booking, status: 'active', driverId: user._id } : booking
+        )
+      );
+      window.location.reload();
+    } catch (error) {
+      console.error('Error accepting booking:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">Booking History</h2>
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">Active Requests</h2>
 
-      {/* Booking Details View */}
       {selectedBooking ? (
         <div className="bg-white shadow-lg rounded-lg p-8 mb-8 max-w-xl mx-auto">
           <h3 className="text-2xl font-bold mb-6 text-indigo-600">Booking Details</h3>
@@ -54,8 +71,6 @@ const BookingHistoryPage = () => {
             <p className="text-gray-700">
               <strong>Date:</strong> {new Date(selectedBooking.createdAt).toLocaleString()}
             </p>
-
-            {/* Driver details */}
             {selectedBooking.driverId ? (
               <>
                 <h4 className="text-xl font-bold text-indigo-600 mt-6">Driver Details</h4>
@@ -73,7 +88,6 @@ const BookingHistoryPage = () => {
               <p className="text-red-500 mt-4">Driver details not available.</p>
             )}
           </div>
-
           <button
             onClick={() => setSelectedBooking(null)}
             className="mt-6 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
@@ -82,18 +96,13 @@ const BookingHistoryPage = () => {
           </button>
         </div>
       ) : (
-        // Booking List View
         <ul role="list" className="divide-y divide-gray-200 max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8">
           {bookings.length === 0 ? (
             <p className="text-center text-gray-600">No bookings found.</p>
           ) : (
             bookings.map((booking) => (
-              <li
-                key={booking._id}
-                className="flex justify-between gap-x-6 py-5 cursor-pointer hover:bg-indigo-50 transition duration-300 rounded-lg"
-                onClick={() => handleBookingClick(booking)}
-              >
-                <div className="flex min-w-0 gap-x-4">
+              <li key={booking._id} className="flex justify-between gap-x-6 py-5 cursor-pointer hover:bg-indigo-50 transition duration-300 rounded-lg">
+                <div className="flex min-w-0 gap-x-4" onClick={() => handleBookingClick(booking)}>
                   <div className="h-12 w-12 flex-none rounded-full bg-indigo-200 flex items-center justify-center">
                     <span className="text-white font-bold text-lg">
                       {booking.pickupLocation.charAt(0)}
@@ -111,6 +120,14 @@ const BookingHistoryPage = () => {
                   <p className="mt-1 text-xs text-gray-500">
                     Date: {new Date(booking.createdAt).toLocaleDateString()}
                   </p>
+                  <div className="mt-2">
+                    <button
+                      onClick={() => handleAccept(booking._id)}
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition duration-300"
+                    >
+                      Accept
+                    </button>
+                  </div>
                 </div>
               </li>
             ))

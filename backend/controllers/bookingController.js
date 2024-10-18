@@ -1,5 +1,5 @@
 const Booking = require('../models/Booking');
-
+const jwt = require('jsonwebtoken');
 // controllers/bookingController.js
 
 const createBooking = async (req, res) => {
@@ -25,7 +25,7 @@ const createBooking = async (req, res) => {
             dropOffLocation, // Ensure this matches the schema
             vehicleType,
             estimatedCost,
-            status: 'active', // Use 'active' as initial booking status
+            status: 'pending', // Use 'active' as initial booking status
         });
 
         await booking.save();
@@ -79,18 +79,35 @@ const cancelBooking = async (req, res) => {
 };
 
 // Function to estimate the cost (dummy implementation)
-const calculateEstimatedCost = async (pickupLocation, dropoffLocation, vehicleType) => {
-    // This is a placeholder. Implement the logic to calculate cost based on distance, vehicle type, etc.
-    // You could use an external API to calculate distances and apply pricing rules based on vehicle types.
-    return Math.floor(Math.random() * 100) + 1; // Random cost between 1 and 100 for demonstration
+const calculateEstimatedCost = async (pickupLocation, dropoffLocation, vehicleType, distance) => {
+    const baseFare = 100; // Fixed base fare in INR
+    const perKmRate = 12; // Cost per kilometer in INR
+
+    // Calculate the initial cost without any surcharges
+    let estimatedCost = baseFare + (distance * perKmRate);
+
+    // Add a surcharge for long distances (optional)
+    if (distance > 20) {
+        const longDistanceSurcharge = 0.15 * estimatedCost; // 15% surcharge for distances greater than 20 km
+        estimatedCost += longDistanceSurcharge;
+    }
+
+    // Add GST (optional)
+    const gstRate = 0.18; // GST rate (18%)
+    const gstAmount = estimatedCost * gstRate;
+    estimatedCost += gstAmount;
+
+    // Return the calculated cost, rounded to two decimal places
+    return Math.round(estimatedCost * 100) / 100;
 };
+
 
 
 const estimateBookingCost = async (req, res) => {
     try {
-        const { pickupLocation, dropOffLocation, vehicleType } = req.body;
+        const { pickupLocation, dropOffLocation, vehicleType, distance } = req.body;
 
-        const estimatedCost = await calculateEstimatedCost(pickupLocation, dropOffLocation, vehicleType);
+        const estimatedCost = await calculateEstimatedCost(pickupLocation, dropOffLocation, vehicleType, distance);
 
         if (estimatedCost === null || estimatedCost === undefined) {
             return res.status(400).json({ error: 'Failed to calculate estimated cost' });
@@ -108,9 +125,84 @@ const estimateBookingCost = async (req, res) => {
 
 
 
+
+// Fetch active bookings for a driver
+const getActiveBookings = async (req, res) => {
+  try {
+    const driverId = req.user._id; // Assume the driver is authenticated and their ID is in req.user
+    const bookings = await Booking.find({ driverId, status: 'pending' })
+      .populate('userId', 'name email') // Populate user details if necessary
+      .populate('driverId', 'name email phone'); // Populate driver details
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching active bookings' });
+  }
+};
+
+
+
+const acceptBooking = async (req, res) => {
+    try {
+      const bookingId = req.params.id;
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const driverId= decoded.id
+
+      // Update the booking status to 'pending' and set the driverId
+      const updatedBooking = await Booking.findByIdAndUpdate(
+        bookingId,
+        { status: 'accepted', driverId: driverId}, // Assuming req.user contains the driver's information
+        { new: true }
+      );
+  
+      if (!updatedBooking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      res.status(200).json(updatedBooking);
+    } catch (error) {
+      console.error('Error accepting booking:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+
+
+
+
+
+
+  const viewBookingHistoryDriver = async (req, res) => {
+    try {
+
+        const bookingId = req.params.id;
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const driverId= decoded.id
+        // Fetch bookings for the logged-in user and populate both user and driver details
+        const bookings = await Booking.find({  driverId: driverId })
+            .populate('userId', 'name email phone') // Populating user details
+            .populate('driverId', 'name email phone'); // Populating driver details
+
+        if (bookings.length === 0) {
+            return res.status(200).json({ message: 'No bookings found for this user.' });
+        }
+
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error('Error retrieving booking history:', error);
+        res.status(500).json({ error: 'Failed to retrieve booking history' });
+    }
+};
+
+
 module.exports = {
     createBooking,
     viewBookingHistory,
     cancelBooking,
-    estimateBookingCost
+    estimateBookingCost,
+    getActiveBookings,
+    acceptBooking,
+    viewBookingHistoryDriver
 };

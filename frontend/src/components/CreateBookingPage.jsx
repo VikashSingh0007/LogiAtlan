@@ -32,8 +32,8 @@ const CreateBookingPage = () => {
         'http://localhost:5000/api/bookings/',
         {
           userId: user._id,
-          pickupLocation: pickup,
-          dropOffLocation: dropoff,
+          pickupLocation: fromQuery,
+          dropOffLocation: toQuery,
           vehicleType: vehicleType,
           estimatedCost: priceEstimate,
         },
@@ -59,9 +59,10 @@ const CreateBookingPage = () => {
   const handleBooking = async () => {
     try {
       const res = await axios.post('http://localhost:5000/api/bookings/cost', {
-        pickupLocation: pickup,
-        dropOffLocation: dropoff,
+        pickupLocation: fromQuery,
+        dropOffLocation: toQuery,
         vehicleType,
+        distance: distance
       });
 
       setPriceEstimate(res.data.estimatedCost);
@@ -72,6 +73,91 @@ const CreateBookingPage = () => {
   };
 
   // Remaining code...
+
+  const [fromQuery, setFromQuery] = useState(''); // From location search query
+  const [toQuery, setToQuery] = useState('');     // To location search query
+  const [fromSuggestions, setFromSuggestions] = useState([]); // Suggestions for "From"
+  const [toSuggestions, setToSuggestions] = useState([]);     // Suggestions for "To"
+  const [fromCoordinates, setFromCoordinates] = useState(null); // Coordinates of "From"
+  const [toCoordinates, setToCoordinates] = useState(null);     // Coordinates of "To"
+  const [distance, setDistance] = useState(null); // Calculated distance between "From" and "To"
+
+  // Function to fetch suggestions based on query and which search bar ("From" or "To")
+  const getSuggestions = async (query, setSuggestions) => {
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1&limit=50`);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  // Function to handle search changes and fetch suggestions for "From" or "To"
+  const handleFromSearchChange = (e) => {
+    setFromQuery(e.target.value);
+    getSuggestions(e.target.value, setFromSuggestions);  // Fetch suggestions for "From"
+  };
+
+  const handleToSearchChange = (e) => {
+    setToQuery(e.target.value);
+    getSuggestions(e.target.value, setToSuggestions);  // Fetch suggestions for "To"
+  };
+
+  // Function to handle suggestion selection for "From" and save coordinates
+  const handleFromSuggestionClick = (suggestion) => {
+    setFromQuery(suggestion.display_name); // Set selected place name
+    setFromCoordinates({
+      latitude: suggestion.lat,
+      longitude: suggestion.lon,
+    }); // Save coordinates of the selected place
+    setFromSuggestions([]); // Clear suggestions
+  };
+
+  // Function to handle suggestion selection for "To" and save coordinates
+  const handleToSuggestionClick = (suggestion) => {
+    setToQuery(suggestion.display_name); // Set selected place name
+    setToCoordinates({
+      latitude: suggestion.lat,
+      longitude: suggestion.lon,
+    }); // Save coordinates of the selected place
+    setToSuggestions([]); // Clear suggestions
+  };
+
+  // Haversine Formula to calculate distance between two coordinates
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Radius of Earth in kilometers
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in kilometers
+  };
+
+  // Calculate distance between "From" and "To" whenever both coordinates are set
+  useEffect(() => {
+    if (fromCoordinates && toCoordinates) {
+      const calculatedDistance = calculateDistance(
+        fromCoordinates.latitude,
+        fromCoordinates.longitude,
+        toCoordinates.latitude,
+        toCoordinates.longitude
+      );
+      setDistance(calculatedDistance);
+    }
+  }, [fromCoordinates, toCoordinates]);
+
+
+
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -89,11 +175,21 @@ const CreateBookingPage = () => {
               <input
                 type="text"
                 placeholder="Pickup Location"
-                value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
+                value={fromQuery}
+                onChange={handleFromSearchChange}
                 required
+                autoComplete="off"
                 className="mt-1 px-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-indigo-500 focus:border-indigo-500"
               />
+              {fromSuggestions.length > 0 && (
+          <ul className="suggestions-dropdown">
+            {fromSuggestions.map((suggestion) => (
+              <li key={suggestion.place_id} onClick={() => handleFromSuggestionClick(suggestion)}>
+                {suggestion.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
             </div>
 
             <div>
@@ -101,11 +197,27 @@ const CreateBookingPage = () => {
               <input
                 type="text"
                 placeholder="Dropoff Location"
-                value={dropoff}
-                onChange={(e) => setDropoff(e.target.value)}
+                value={toQuery}
+                onChange={handleToSearchChange}
                 required
+                autoComplete="off"
                 className="mt-1 px-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-indigo-500 focus:border-indigo-500"
               />
+               {toSuggestions.length > 0 && (
+          <ul className="suggestions-dropdown">
+            {toSuggestions.map((suggestion) => (
+              <li key={suggestion.place_id} onClick={() => handleToSuggestionClick(suggestion)}>
+                {suggestion.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+         {/* Show distance after both locations are selected */}
+      {distance && (
+        <p>
+          The distance from <strong>{fromQuery}</strong> to <strong>{toQuery}</strong> is {distance.toFixed(2)} kilometers.
+        </p>
+      )}
             </div>
 
             {/* Price Estimate Button */}
@@ -117,7 +229,7 @@ const CreateBookingPage = () => {
               Get Price Estimate
             </button>
 
-            {priceEstimate && <p className="text-center text-lg font-bold">Estimated Price: ${priceEstimate}</p>}
+            {priceEstimate && <p className="text-center text-lg font-bold">Estimated Price: ₹ {priceEstimate}</p>}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Vehicle Type</label>
